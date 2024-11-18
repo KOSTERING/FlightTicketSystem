@@ -51,11 +51,15 @@ public class Passenger {
                 reservations.remove(reservation);
                 flight.removePassenger(this);
                 balance += reservation.getRefundFee();
-                System.out.println(methodLogPrefix + "Your Reservation for FlightNum:" +flight.getFlightNumber() +
+                System.out.println(methodLogPrefix + "Passenger:"+ this.name +" Reservation for FlightNum:" +flight.getFlightNumber() +
                         "has been Canceled.");
                 return true;
             }
         }
         return false;
+    }
+
+    public void Noifitied(){
+        System.out.println("name = " + name +" has been Noifitied");
     }
 }

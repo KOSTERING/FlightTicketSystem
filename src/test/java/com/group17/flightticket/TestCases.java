@@ -13,7 +13,7 @@ import java.time.LocalDateTime;
 import java.util.Date;
 import java.util.List;
 
-@SpringBootTest
+@SpringBootTest(classes = FlightTicketSystemApplication.class)
 public class TestCases {
 
     ChinaEasternAirlines easternAirlines;
@@ -29,13 +29,13 @@ public class TestCases {
     @BeforeEach
     void beforeEach() {
 
-        ChinaEasternAirlines easternAirlines = new ChinaEasternAirlines();
+        easternAirlines = new ChinaEasternAirlines();
 
-        flightDomestic = new Flight("MU12322", "NewYork", "Paris",
+        flightAbroad = new Flight("MU12322", "NewYork", "Paris",
                 LocalDateTime.of(2024, 11, 18, 12, 0),
                 LocalDateTime.of(2024, 11, 19, 0, 0),
                 10);
-        flightAbroad = new Flight("MU45613", "Shanghai", "Guangzhou",
+        flightDomestic = new Flight("MU45613", "Shanghai", "Guangzhou",
                 LocalDateTime.of(2024, 11, 20, 10, 0),
                 LocalDateTime.of(2024, 11, 20, 13, 0),
                 2);
@@ -51,19 +51,36 @@ public class TestCases {
     @Test
     void TestReservation() {
         
-        System.out.println(passengerAlice.makeReservation(flightAbroad, SeatCategory.FIRST_CLASS));
-        System.out.println(passengerBob.makeReservation(flightAbroad, SeatCategory.FIRST_CLASS));
+        System.out.println(passengerAlice.makeReservation(flightDomestic, SeatCategory.FIRST_CLASS));
+        System.out.println(passengerBob.makeReservation(flightDomestic, SeatCategory.FIRST_CLASS));
 
         //Capcaity Exceed
-        System.out.println(passengerHaru.makeReservation(flightAbroad, SeatCategory.FIRST_CLASS));
+        System.out.println(passengerHaru.makeReservation(flightDomestic, SeatCategory.FIRST_CLASS));
 
-        //Get Member List of flightAbroad
-        List<String> flightNumberList = flightAbroad.getFlightNumberList();
+        //Get Member List of flightDomestic
+        List<String> flightNumberList = flightDomestic.getFlightNumberList();
         flightNumberList.forEach(System.out::println);
 
-        //Close Reservation For FlightDomestic
-        flightDomestic.setBOpenForReservation(false);
-        System.out.println(passengerBob.makeReservation(flightDomestic, SeatCategory.FIRST_CLASS));
+        //Close Reservation For flightAbroad
+        flightAbroad.setBOpenForReservation(false);
+        System.out.println(passengerBob.makeReservation(flightAbroad, SeatCategory.FIRST_CLASS));
+
+        //Cancel Reservation
+        System.out.println(passengerBob.cancelReservation(flightDomestic));
+    }
+
+    @Test
+    void TestCancelDelayAndNotify() {
+
+        System.out.println(passengerAlice.makeReservation(flightDomestic, SeatCategory.FIRST_CLASS));
+
+        //Delay 2h For flightDomestic
+        easternAirlines.delayFlight(flightDomestic.getFlightNumber(),
+                flightDomestic.getDepartureTime().plusHours(2),
+                flightDomestic.getArrivalTime().plusHours(2));
+
+        //flightDomestic inventory
+        easternAirlines.inventory();
     }
 
 }

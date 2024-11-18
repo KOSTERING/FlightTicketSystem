@@ -55,7 +55,7 @@ public class Flight {
 
     private void notifyPassengers() {
         for (Passenger passenger : passengerList) {
-            System.out.println("Notifying " + passenger.getName() + " about flight delay.");
+            passenger.Noifitied();
         }
     }
 
