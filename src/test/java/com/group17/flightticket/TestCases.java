@@ -26,6 +26,7 @@ public class TestCases {
     Passenger passengerBob;
     Passenger passengerHaru;
 
+    //创建前缀测试用例
     @BeforeEach
     void beforeEach() {
 
