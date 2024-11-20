@@ -59,7 +59,7 @@ public class Passenger {
         return false;
     }
 
-    public void Noifitied(){
-        System.out.println("name = " + name +" has been Noifitied");
+    public void Notified(){
+        System.out.println("name = " + name +" has been Notified");
     }
 }

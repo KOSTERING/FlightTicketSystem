@@ -55,7 +55,7 @@ public class Flight {
 
     private void notifyPassengers() {
         for (Passenger passenger : passengerList) {
-            passenger.Noifitied();
+            passenger.Notified();
         }
     }
 
