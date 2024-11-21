@@ -7,6 +7,7 @@ import lombok.Data;
 import java.util.ArrayList;
 import java.util.List;
 
+
 @Data
 public class Passenger {
     private String name;
@@ -36,7 +37,7 @@ public class Passenger {
         Reservation reservation = new Reservation(flight, category);
         double fee = reservation.getFee();
         if (balance < fee) {
-            System.out.println(methodLogPrefix + "Your balance is not enough for this flight.");
+            System.out.println(methodLogPrefix + "Your balance is Insufficient for this flight.");
             return false;
         }
 

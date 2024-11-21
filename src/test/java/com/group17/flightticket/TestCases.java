@@ -13,6 +13,9 @@ import java.time.LocalDateTime;
 import java.util.Date;
 import java.util.List;
 
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 @SpringBootTest(classes = FlightTicketSystemApplication.class)
 public class TestCases {
 
@@ -26,7 +29,7 @@ public class TestCases {
     Passenger passengerBob;
     Passenger passengerHaru;
 
-    //创建前缀测试用例
+    //Some Preparation before test case running
     @BeforeEach
     void beforeEach() {
 
@@ -52,38 +55,42 @@ public class TestCases {
     @Test
     void TestReservation() {
         
-        System.out.println(passengerAlice.makeReservation(flightDomestic, SeatCategory.FIRST_CLASS));
-        System.out.println(passengerBob.makeReservation(flightDomestic, SeatCategory.FIRST_CLASS));
+        assertTrue(passengerAlice.makeReservation(flightDomestic, SeatCategory.FIRST_CLASS));
+        assertTrue(passengerBob.makeReservation(flightDomestic, SeatCategory.FIRST_CLASS));
 
-        //Capcaity Exceed
-        System.out.println(passengerHaru.makeReservation(flightDomestic, SeatCategory.FIRST_CLASS));
+        //Capcaity Exceed book fail
+        assertFalse(passengerHaru.makeReservation(flightDomestic, SeatCategory.FIRST_CLASS));
 
         //Get Member List of flightDomestic
         List<String> flightNumberList = flightDomestic.getFlightNumberList();
-        flightNumberList.forEach(System.out::println);
+        flightNumberList.forEach(System.out::println); //it should print Alice Bob
 
         //Close Reservation For flightAbroad
         flightAbroad.setBOpenForReservation(false);
-        System.out.println(passengerBob.makeReservation(flightAbroad, SeatCategory.FIRST_CLASS));
+        assertFalse(passengerBob.makeReservation(flightAbroad, SeatCategory.FIRST_CLASS));
 
-        //Cancel Reservation
-        System.out.println(passengerBob.cancelReservation(flightDomestic));
+        //Cancel Reservation (Some Notification message will be print out if it Cancel Reservation Sucessfully)
+        assertTrue(passengerBob.cancelReservation(flightDomestic));
     }
 
     @Test
     void TestCancelDelayAndNotify() {
 
-        System.out.println(passengerAlice.makeReservation(flightDomestic, SeatCategory.FIRST_CLASS));
+        assertTrue(passengerAlice.makeReservation(flightDomestic, SeatCategory.FIRST_CLASS));
 
         //Delay 2h For flightDomestic
+        //Alice will be Notified
         easternAirlines.delayFlight(flightDomestic.getFlightNumber(),
                 flightDomestic.getDepartureTime().plusHours(2),
                 flightDomestic.getArrivalTime().plusHours(2));
 
         //flightDomestic inventory
+
+        //flight MU12322 remain 10 seat
+        //flight MU45613 remain 1 seat,and there will be short of capacity notification
         easternAirlines.inventory();
 
-        //flight remain5 seat
+
     }
 
 }

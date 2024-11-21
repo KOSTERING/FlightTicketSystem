@@ -15,10 +15,6 @@ public class Reservation {
         this.fee = calculateFee(seatCategory);
     }
 
-    public SeatCategory getCategory() {
-        return seatCategory;
-    }
-
     public void modifyCategory(SeatCategory newSeatCategory) {
         this.seatCategory = newSeatCategory;
         this.fee = calculateFee(newSeatCategory); // Recalculate fee for the new seatCategory
