@@ -81,6 +81,8 @@ public class TestCases {
 
         //flightDomestic inventory
         easternAirlines.inventory();
+
+        //flight remain5 seat
     }
 
 }
