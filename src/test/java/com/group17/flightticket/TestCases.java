@@ -28,6 +28,7 @@ public class TestCases {
     Passenger passengerAlice;
     Passenger passengerBob;
     Passenger passengerHaru;
+    Passenger passengerJack;
 
     //Some Preparation before test case running
     @BeforeEach
@@ -50,6 +51,7 @@ public class TestCases {
         this.passengerAlice = new Passenger("Alice",2000);
         this.passengerBob = new Passenger("Bob",3000);
         this.passengerHaru = new Passenger("Haru",10000);
+        this.passengerJack = new Passenger("Jack",300);
     }
 
     @Test
@@ -76,19 +78,27 @@ public class TestCases {
     @Test
     void TestCancelDelayAndNotify() {
 
-        assertTrue(passengerAlice.makeReservation(flightDomestic, SeatCategory.FIRST_CLASS));
+        assertTrue(passengerAlice.makeReservation(flightDomestic, SeatCategory.PREMIUM_ECONOMY));
+        assertTrue(passengerJack.makeReservation(flightAbroad, SeatCategory.BUSINESS));
 
         //Delay 2h For flightDomestic
         //Alice will be Notified
+        LocalDateTime DelayFlightStartTime = flightDomestic.getDepartureTime().plusHours(2);
+        LocalDateTime DelayFlightArrivalTime = flightDomestic.getArrivalTime().plusHours(2);
         easternAirlines.delayFlight(flightDomestic.getFlightNumber(),
-                flightDomestic.getDepartureTime().plusHours(2),
-                flightDomestic.getArrivalTime().plusHours(2));
+                DelayFlightStartTime,DelayFlightArrivalTime);
 
         //flightDomestic inventory
 
-        //flight MU12322 remain 10 seat
+        //flight MU12322 remain 9 seat
         //flight MU45613 remain 1 seat,and there will be short of capacity notification
         easternAirlines.inventory();
+
+        //sufficient balance for alice to modify SeatCategory
+        assertTrue(passengerAlice.modifySeatCategory(flightDomestic.getFlightNumber(),SeatCategory.FIRST_CLASS));
+
+        //Insufficient balance for jack to modify SeatCategory
+        assertFalse(passengerJack.modifySeatCategory(flightAbroad.getFlightNumber(),SeatCategory.FIRST_CLASS));
 
 
     }
