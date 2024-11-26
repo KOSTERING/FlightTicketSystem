@@ -12,9 +12,6 @@ import java.util.List;
 public class AirlineCompany {
     private String companyName;
     private List<Flight> flights = new ArrayList<>();
-
-    // 添加常量：航班容量阈值
-    // 这是一个静态的、共享的常量，用于表示航班座位即将满员的警告阈值。
     protected static final int CAPACITY_THRESHOLD = 5;
 
     /**
