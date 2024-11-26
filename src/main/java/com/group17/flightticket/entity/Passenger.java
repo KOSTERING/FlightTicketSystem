@@ -70,18 +70,19 @@ public class Passenger {
      */
 
     public boolean modifySeatCategory(String flightNum,SeatCategory newCategory) {
-        Reservation CurrentReservation = null;
-        for (Reservation singleRes:reservations) {
-            if (flightNum.equals(singleRes.getFlight().getFlightNumber())) {
-                CurrentReservation =  singleRes;
+        //TODO:小写
+        Reservation currentReservation = null;
+        for (Reservation reservation:reservations) {
+            if (flightNum.equals(reservation.getFlight().getFlightNumber())) {
+                currentReservation =  reservation;
             }
         }
-        if (CurrentReservation == null) {
+        if (currentReservation == null) {
             System.out.println("Your reservation for FlightNum: "+flightNum+" does not exist! please make a reservation first!");
             return false;
         }
 
-        SeatCategory CurrentCategory = CurrentReservation.getSeatCategory();
+        SeatCategory CurrentCategory = currentReservation.getSeatCategory();
         if (newCategory == CurrentCategory) {
            System.out.println("You book the same seatCategory compare to the previous one，please check again");
            return false;
@@ -91,7 +92,7 @@ public class Passenger {
             System.out.println("Your balance is Insufficient for this change!");
             return false;
         }
-        CurrentReservation.modifyCategory(newCategory);
+        currentReservation.modifyCategory(newCategory);
         balance += gapPrice;
         System.out.println("You Flight: " + flightNum + " seatCategory has now Change to " + newCategory.name());
         return true;
