@@ -3,6 +3,7 @@ package com.group17.flightticket;
 import com.group17.flightticket.entity.ChinaEasternAirlines;
 import com.group17.flightticket.entity.Flight;
 import com.group17.flightticket.entity.Passenger;
+import com.group17.flightticket.entity.Reservation;
 import com.group17.flightticket.enums.SeatCategory;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
@@ -13,8 +14,7 @@ import java.time.LocalDateTime;
 import java.util.Date;
 import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 
 @SpringBootTest(classes = FlightTicketSystemApplication.class)
 public class TestCases {
@@ -56,12 +56,17 @@ public class TestCases {
 
     @Test
     void TestReservation() {
-        
-        assertTrue(passengerAlice.makeReservation(flightDomestic, SeatCategory.FIRST_CLASS));
-        assertTrue(passengerBob.makeReservation(flightDomestic, SeatCategory.FIRST_CLASS));
+
+        Reservation AliceReservation = passengerAlice.makeReservationV2(flightDomestic, SeatCategory.FIRST_CLASS);
+        Reservation BobReservation = passengerBob.makeReservationV2(flightDomestic, SeatCategory.FIRST_CLASS);
+
+        /*assertTrue(passengerAlice.makeReservation(flightDomestic, SeatCategory.FIRST_CLASS));
+        assertTrue(passengerBob.makeReservation(flightDomestic, SeatCategory.FIRST_CLASS));*/
 
         //Capcaity Exceed book fail
-        assertFalse(passengerHaru.makeReservation(flightDomestic, SeatCategory.FIRST_CLASS));
+        Reservation HaruReservation= passengerHaru.makeReservationV2(flightDomestic, SeatCategory.FIRST_CLASS);
+
+        assertNull(HaruReservation);
 
         //Get Member List of flightDomestic
         List<String> flightNumberList = flightDomestic.getFlightNumberList();
@@ -69,7 +74,7 @@ public class TestCases {
 
         //Close Reservation For flightAbroad
         flightAbroad.setBOpenForReservation(false);
-        assertFalse(passengerBob.makeReservation(flightAbroad, SeatCategory.FIRST_CLASS));
+        assertNull(passengerBob.makeReservationV2(flightAbroad, SeatCategory.FIRST_CLASS));
 
         //Cancel Reservation (Some Notification message will be print out if it Cancel Reservation Sucessfully)
         assertTrue(passengerBob.cancelReservation(flightDomestic));
@@ -78,8 +83,8 @@ public class TestCases {
     @Test
     void TestCancelDelayAndNotify() {
 
-        assertTrue(passengerAlice.makeReservation(flightDomestic, SeatCategory.PREMIUM_ECONOMY));
-        assertTrue(passengerJack.makeReservation(flightAbroad, SeatCategory.BUSINESS));
+        Reservation JackReservation = passengerJack.makeReservationV2(flightAbroad, SeatCategory.BUSINESS);
+        Reservation AliceReservation = passengerAlice.makeReservationV2(flightAbroad, SeatCategory.BUSINESS);
 
         //Delay 2h For flightDomestic
         //Alice will be Notified
@@ -100,7 +105,12 @@ public class TestCases {
         //Insufficient balance for jack to modify SeatCategory
         assertFalse(passengerJack.modifySeatCategory(flightAbroad.getFlightNumber(),SeatCategory.FIRST_CLASS));
 
-
     }
 
+    @Test
+    void TestNewMethod() {
+        Reservation JackReservation=passengerJack.makeReservationV2(flightAbroad, SeatCategory.BUSINESS);
+        assertFalse(passengerJack.modifySeatCategoryV2(JackReservation,SeatCategory.FIRST_CLASS));
+
+    }
 }

@@ -22,6 +22,7 @@ public class Passenger {
     /** Prefix for logging messages */
     private static String methodLogPrefix = "LogPassenger_ ";
 
+
     /**
      * Constructor to create a new Passenger instance.
      *
@@ -32,34 +33,33 @@ public class Passenger {
         this.name = name;
         this.balance = balance;
     }
-     /**
-     * Make a reservation for a flight.
-     *
-     * @param flight   the flight to be reserved
-     * @param category the seat category for the reservation
-     * @return true if the reservation is successful, false otherwise
-     */
-    public boolean makeReservation(Flight flight, SeatCategory category) {
+
+    public Reservation makeReservationV2(Flight flight, SeatCategory category) {
         if (!flight.isBOpenForReservation()) {
             System.out.println(methodLogPrefix+ "The Flight number: " + flight.getFlightNumber()+" are no longer open for Reservation");
-            return false;
+            return null;
+        }
+
+        if (flight.getRemainSeatCount() < 1) {
+            return null;
         }
 
         if (reservations.stream().anyMatch(reservation -> reservation.getFlight().equals(flight))) {
             System.out.println(methodLogPrefix+ "Conflict: Already booked on this flight.");
-            return false;
+            return null;
         }
 
         Reservation reservation = new Reservation(flight, category);
         double fee = reservation.getFee();
         if (balance < fee) {
             System.out.println(methodLogPrefix + "Your balance is Insufficient for this flight.");
-            return false;
+            return null;
         }
 
         balance -= fee;
         reservations.add(reservation);
-        return flight.addPassenger(this);
+        flight.addPassenger(this);
+        return reservation;
     }
 
     /**
@@ -70,7 +70,7 @@ public class Passenger {
      */
 
     public boolean modifySeatCategory(String flightNum,SeatCategory newCategory) {
-        //TODO:小写
+
         Reservation currentReservation = null;
         for (Reservation reservation:reservations) {
             if (flightNum.equals(reservation.getFlight().getFlightNumber())) {
@@ -82,19 +82,59 @@ public class Passenger {
             return false;
         }
 
-        SeatCategory CurrentCategory = currentReservation.getSeatCategory();
-        if (newCategory == CurrentCategory) {
+        SeatCategory currentcategory = currentReservation.getSeatCategory();
+        if (newCategory == currentcategory) {
            System.out.println("You book the same seatCategory compare to the previous one，please check again");
            return false;
        }
-        double gapPrice = CurrentCategory.getBaseFee() - newCategory.getBaseFee();
+        double gapPrice = currentcategory.getBaseFee() - newCategory.getBaseFee();
         if (balance + gapPrice < 0) {
             System.out.println("Your balance is Insufficient for this change!");
             return false;
         }
+        //1.调用modifty
         currentReservation.modifyCategory(newCategory);
+        //2.删减余额
         balance += gapPrice;
         System.out.println("You Flight: " + flightNum + " seatCategory has now Change to " + newCategory.name());
+        return true;
+    }
+
+    //TODO：传参改成resrvation
+    //1.传进来的参数可不可能为空，为空怎么办
+    //2.精简代码不必要剔除
+    public boolean modifySeatCategoryV2(Reservation reservation,SeatCategory newCategory) {
+        if(reservation==null){
+            System.out.println("The reservation object is null!");
+            return false;
+        }
+        Reservation currentReservation = null;
+        for (Reservation singleRes:reservations) {
+            if (reservation.equals(singleRes)) {
+                currentReservation =  singleRes;
+                break;
+            }
+        }
+        if (currentReservation == null) {
+            System.out.println("Your reservation does not exist! please make a reservation first!");
+            return false;
+        }
+
+        SeatCategory currentCategory = currentReservation.getSeatCategory();
+        if (newCategory == currentCategory) {
+            System.out.println("You book the same seatCategory compare to the previous one，please check again");
+            return false;
+        }
+        double gapPrice = currentCategory.getBaseFee() - newCategory.getBaseFee();
+        if (balance + gapPrice < 0) {
+            System.out.println("Your balance is Insufficient for this change!");
+            return false;
+        }
+        //1.调用modifty
+        currentReservation.modifyCategory(newCategory);
+        //2.删减余额
+        balance += gapPrice;
+        System.out.println("You Flight: " + reservation.getFlight().getFlightNumber() + " seatCategory has now Change to " + newCategory.name());
         return true;
     }
 
