@@ -13,6 +13,7 @@ public class AirlineCompany {
     private String companyName;
     private List<Flight> flights = new ArrayList<>();
     protected static final int CAPACITY_THRESHOLD = 5;
+    private LoyalScheme loyalScheme;
 
     /**
      * Constructs a new instance of an AirlineCompany with the specified company name.
@@ -23,6 +24,7 @@ public class AirlineCompany {
     public AirlineCompany(String companyName) {
         this.companyName = companyName;
         this.flights = new ArrayList<>();
+        this.loyalScheme = new LoyalScheme();
     }
 
     /**

@@ -3,6 +3,8 @@ package com.group17.flightticket.entity;
 import com.group17.flightticket.enums.SeatCategory;
 import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
+import lombok.ToString;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -34,7 +36,7 @@ public class Passenger {
         this.balance = balance;
     }
 
-    public Reservation makeReservationV2(Flight flight, SeatCategory category) {
+/*    public Reservation makeReservationV2(Flight flight, SeatCategory category) {
         if (!flight.isBOpenForReservation()) {
             System.out.println(methodLogPrefix+ "The Flight number: " + flight.getFlightNumber()+" are no longer open for Reservation");
             return null;
@@ -59,6 +61,44 @@ public class Passenger {
         balance -= fee;
         reservations.add(reservation);
         flight.addPassenger(this);
+        return reservation;
+    }*/
+
+    public Reservation makeReservationV3(Flight flight, SeatCategory category) {
+        // 检查航班是否开放预订
+        if (!flight.isBOpenForReservation() || flight.getRemainSeatCount() < 1) {
+            System.out.println("Flight is not open for reservation or fully booked.");
+            return null;
+        }
+        if (flight.getRemainSeatCount() < 1) {
+            return null;
+        }
+
+        if (reservations.stream().anyMatch(reservation -> reservation.getFlight().equals(flight))) {
+            System.out.println(methodLogPrefix+ "Conflict: Already booked on this flight.");
+            return null;
+        }
+
+        Reservation reservation = new Reservation(flight, category);
+        double fee = reservation.getFee();
+
+        // 优先使用积分抵扣
+        LoyalScheme loyalScheme = flight.getAirlineCompany().getLoyalScheme();
+        double points = loyalScheme.getPoints(this.getName());
+        if (points + balance < fee) {
+            System.out.println("Insufficient balance or Loyal points for this flight.");
+            return null;
+        }
+        Double needToPay = loyalScheme.redeemPoints(this.getName(), fee);
+        // 扣除余额，完成预订
+        balance -= needToPay;
+        // 增加积分
+        int pointsEarned = (int) (fee / 10); // 每10元获得1积分
+        loyalScheme.addPoints(this.getName(), pointsEarned);
+        reservations.add(reservation);
+        flight.addPassenger(this);
+
+        System.out.println("Reservation successful. Points earned: " + pointsEarned + " current total points " + loyalScheme.getPoints(getName()));
         return reservation;
     }
 
@@ -144,14 +184,17 @@ public class Passenger {
      * @param flight the flight to cancel the reservation for
      * @return true if the cancellation is successful, false otherwise
      */
-    public boolean cancelReservation(Flight flight) {
+    public boolean cancelReservation(Flight flight, AirlineCompany airlineCompany) {
         for (Reservation reservation : reservations) {
             if (reservation.getFlight().equals(flight)) {
                 reservations.remove(reservation);
                 flight.removePassenger(this);
-                balance += reservation.getRefundFee();
+                Double refundFee = reservation.getRefundFee();
+                balance += refundFee;
+                int pointsToRefund = (int) (refundFee / 10);
+                airlineCompany.getLoyalScheme().addPoints(this.getName(),pointsToRefund);
                 System.out.println(methodLogPrefix + "Passenger:"+ this.name +" Reservation for FlightNum:" +flight.getFlightNumber() +
-                        "has been Canceled.");
+                        "has been Canceled + pointsToRefund:" + pointsToRefund);
                 return true;
             }
         }

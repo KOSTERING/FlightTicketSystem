@@ -36,11 +36,11 @@ public class TestCases {
 
         easternAirlines = new ChinaEasternAirlines();
 
-        flightAbroad = new Flight("MU12322", "NewYork", "Paris",
+        flightAbroad = new Flight("MU12322", "NewYork",easternAirlines, "Paris",
                 LocalDateTime.of(2024, 11, 18, 12, 0),
                 LocalDateTime.of(2024, 11, 19, 0, 0),
                 10);
-        flightDomestic = new Flight("MU45613", "Shanghai", "Guangzhou",
+        flightDomestic = new Flight("MU45613", "Shanghai",easternAirlines, "Guangzhou",
                 LocalDateTime.of(2024, 11, 20, 10, 0),
                 LocalDateTime.of(2024, 11, 20, 13, 0),
                 2);
@@ -57,14 +57,14 @@ public class TestCases {
     @Test
     void TestReservation() {
 
-        Reservation AliceReservation = passengerAlice.makeReservationV2(flightDomestic, SeatCategory.FIRST_CLASS);
-        Reservation BobReservation = passengerBob.makeReservationV2(flightDomestic, SeatCategory.FIRST_CLASS);
+        Reservation AliceReservation = passengerAlice.makeReservationV3(flightDomestic, SeatCategory.FIRST_CLASS);
+        Reservation BobReservation = passengerBob.makeReservationV3(flightDomestic,  SeatCategory.FIRST_CLASS);
 
         /*assertTrue(passengerAlice.makeReservation(flightDomestic, SeatCategory.FIRST_CLASS));
         assertTrue(passengerBob.makeReservation(flightDomestic, SeatCategory.FIRST_CLASS));*/
 
         //Capcaity Exceed book fail
-        Reservation HaruReservation= passengerHaru.makeReservationV2(flightDomestic, SeatCategory.FIRST_CLASS);
+        Reservation HaruReservation= passengerHaru.makeReservationV3(flightDomestic, SeatCategory.FIRST_CLASS);
 
         assertNull(HaruReservation);
 
@@ -74,17 +74,17 @@ public class TestCases {
 
         //Close Reservation For flightAbroad
         flightAbroad.setBOpenForReservation(false);
-        assertNull(passengerBob.makeReservationV2(flightAbroad, SeatCategory.FIRST_CLASS));
+        assertNull(passengerBob.makeReservationV3(flightAbroad,  SeatCategory.FIRST_CLASS));
 
         //Cancel Reservation (Some Notification message will be print out if it Cancel Reservation Sucessfully)
-        assertTrue(passengerBob.cancelReservation(flightDomestic));
+        assertTrue(passengerBob.cancelReservation(flightDomestic, easternAirlines));
     }
 
     @Test
     void TestCancelDelayAndNotify() {
 
-        Reservation JackReservation = passengerJack.makeReservationV2(flightAbroad, SeatCategory.BUSINESS);
-        Reservation AliceReservation = passengerAlice.makeReservationV2(flightAbroad, SeatCategory.BUSINESS);
+        Reservation JackReservation = passengerJack.makeReservationV3(flightAbroad,  SeatCategory.BUSINESS);
+        Reservation AliceReservation = passengerAlice.makeReservationV3(flightAbroad,  SeatCategory.BUSINESS);
 
         //Delay 2h For flightDomestic
         //Alice will be Notified
@@ -109,8 +109,15 @@ public class TestCases {
 
     @Test
     void TestNewMethod() {
-        Reservation JackReservation=passengerJack.makeReservationV2(flightAbroad, SeatCategory.BUSINESS);
+        Reservation JackReservation=passengerJack.makeReservationV3(flightAbroad,  SeatCategory.BUSINESS);
         assertFalse(passengerJack.modifySeatCategoryV2(JackReservation,SeatCategory.FIRST_CLASS));
+
+    }
+
+    @Test
+    void TestNewLoyalScheme() {
+        Reservation JackReservation = passengerJack.makeReservationV3(flightAbroad,  SeatCategory.BUSINESS);
+        passengerJack.cancelReservation(flightAbroad,easternAirlines);
 
     }
 }

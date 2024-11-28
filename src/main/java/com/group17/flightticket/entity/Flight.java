@@ -1,11 +1,13 @@
 package com.group17.flightticket.entity;
 
+import com.group17.flightticket.Interface.Airline;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 /**
  *  The Flight class represents a flight entity that encapsulates information about the flight,
@@ -15,10 +17,10 @@ import java.util.List;
  * @since 2024-11-18
  */
 @Data
-@EqualsAndHashCode
 public class Flight {
     private String flightNumber;
     private String origin;
+    private AirlineCompany airlineCompany;
     private String destination;
     private LocalDateTime departureTime;
     private LocalDateTime arrivalTime;
@@ -37,9 +39,10 @@ public class Flight {
      * @param arrivalTime    The scheduled arrival time of the flight.
      * @param capacity       The total number of seats available on the flight.
      */
-    public Flight(String flightNumber, String origin, String destination, LocalDateTime departureTime, LocalDateTime arrivalTime, int capacity) {
+    public Flight(String flightNumber, String origin,AirlineCompany airlineCompany, String destination, LocalDateTime departureTime, LocalDateTime arrivalTime, int capacity) {
         this.flightNumber = flightNumber;
         this.origin = origin;
+        this.airlineCompany = airlineCompany;
         this.destination = destination;
         this.departureTime = departureTime;
         this.arrivalTime = arrivalTime;
@@ -119,4 +122,16 @@ public class Flight {
         }
         return RetNameList;
     }
+    @Override
+    public int hashCode() {
+        return Objects.hash(flightNumber,origin,destination,departureTime,arrivalTime);
+    }
+
+
+    @Override
+    public String toString() {
+        // 简单返回乘客的基本信息，避免递归调用
+        return "Flight{Number='" + flightNumber + "', origin=" + origin + "}";
+    }
+
 }
