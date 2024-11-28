@@ -1,6 +1,5 @@
 package com.group17.flightticket.entity;
 
-import com.group17.flightticket.Interface.Airline;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 

@@ -100,7 +100,7 @@ public class TestCases {
         easternAirlines.inventory();
 
         //sufficient balance for alice to modify SeatCategory
-        assertTrue(passengerAlice.modifySeatCategory(flightDomestic.getFlightNumber(),SeatCategory.FIRST_CLASS));
+        assertTrue(passengerAlice.modifySeatCategory(flightAbroad.getFlightNumber(),SeatCategory.FIRST_CLASS));
 
         //Insufficient balance for jack to modify SeatCategory
         assertFalse(passengerJack.modifySeatCategory(flightAbroad.getFlightNumber(),SeatCategory.FIRST_CLASS));
