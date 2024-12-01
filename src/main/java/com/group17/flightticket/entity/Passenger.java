@@ -10,8 +10,10 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * The Passenger class represents a passenger with their details and actions.
+ * The {@code Passenger} class represents a passenger with their details and actions.
  * Each passenger has a name, a balance, and a list of reservations.
+ * It provides methods for making, modifying, and canceling flight reservations,
+ * as well as managing loyalty points.
  */
 @Data
 public class Passenger {
@@ -35,37 +37,19 @@ public class Passenger {
         this.name = name;
         this.balance = balance;
     }
-
-/*    public Reservation makeReservationV2(Flight flight, SeatCategory category) {
-        if (!flight.isBOpenForReservation()) {
-            System.out.println(methodLogPrefix+ "The Flight number: " + flight.getFlightNumber()+" are no longer open for Reservation");
-            return null;
-        }
-
-        if (flight.getRemainSeatCount() < 1) {
-            return null;
-        }
-
-        if (reservations.stream().anyMatch(reservation -> reservation.getFlight().equals(flight))) {
-            System.out.println(methodLogPrefix+ "Conflict: Already booked on this flight.");
-            return null;
-        }
-
-        Reservation reservation = new Reservation(flight, category);
-        double fee = reservation.getFee();
-        if (balance < fee) {
-            System.out.println(methodLogPrefix + "Your balance is Insufficient for this flight.");
-            return null;
-        }
-
-        balance -= fee;
-        reservations.add(reservation);
-        flight.addPassenger(this);
-        return reservation;
-    }*/
-
+    /**
+     * Makes a reservation for a flight with a specified seat category.
+     * This method checks if the flight is open for reservation and if there are available seats.
+     * It also checks if the passenger already has a reservation for this flight.
+     * Loyalty points are applied to reduce the flight fee if available.
+     * Points are earned based on the flight fee.
+     *
+     * @param flight   the flight to be reserved
+     * @param category the seat category selected for the reservation
+     * @return the created reservation, or {@code null} if the reservation could not be made
+     */
     public Reservation makeReservationV3(Flight flight, SeatCategory category) {
-        // 检查航班是否开放预订
+
         if (!flight.isBOpenForReservation() || flight.getRemainSeatCount() < 1) {
             System.out.println("Flight is not open for reservation or fully booked.");
             return null;
@@ -82,7 +66,7 @@ public class Passenger {
         Reservation reservation = new Reservation(flight, category);
         double fee = reservation.getFee();
 
-        // 优先使用积分抵扣
+
         LoyalScheme loyalScheme = flight.getAirlineCompany().getLoyalScheme();
         double points = loyalScheme.getPoints(this.getName());
         if (points + balance < fee) {
@@ -90,9 +74,9 @@ public class Passenger {
             return null;
         }
         Double needToPay = loyalScheme.redeemPoints(this.getName(), fee);
-        // 扣除余额，完成预订
+
         balance -= needToPay;
-        // 增加积分
+
         int pointsEarned = (int) (fee / 10); // 每10元获得1积分
         loyalScheme.addPoints(this.getName(), pointsEarned);
         reservations.add(reservation);
@@ -103,10 +87,14 @@ public class Passenger {
     }
 
     /**
+     * Modifies the seat category of an existing reservation for a specified flight number.
+     * The method ensures that the passenger has a reservation for the given flight,
+     * and checks if the new category differs from the current one.
+     * It also ensures that the passenger's balance is sufficient to cover the difference in price.
      *
-     * @param flightNum the flightNum you wanna make changes
-     * @param newCategory new seat category for the reservation
-     * @return true if the change has been made successfully
+     * @param flightNum the flight number of the reservation to be modified
+     * @param newCategory the new seat category for the reservation
+     * @return {@code true} if the seat category was successfully modified, {@code false} otherwise
      */
 
     public boolean modifySeatCategory(String flightNum,SeatCategory newCategory) {
@@ -132,17 +120,23 @@ public class Passenger {
             System.out.println("Your balance is Insufficient for this change!");
             return false;
         }
-        //1.调用modifty
+
         currentReservation.modifyCategory(newCategory);
-        //2.删减余额
+
         balance += gapPrice;
         System.out.println("You Flight: " + flightNum + " seatCategory has now Change to " + newCategory.name());
         return true;
     }
+    /**
+     * Modifies the seat category of an existing reservation, identified by the provided reservation object.
+     * This method ensures the reservation exists and the new seat category is different from the current one.
+     * It also ensures the passenger has enough balance to pay for the price difference.
+     *
+     * @param reservation the reservation to modify
+     * @param newCategory the new seat category for the reservation
+     * @return {@code true} if the seat category was successfully modified, {@code false} otherwise
+     */
 
-    //TODO：传参改成resrvation
-    //1.传进来的参数可不可能为空，为空怎么办
-    //2.精简代码不必要剔除
     public boolean modifySeatCategoryV2(Reservation reservation,SeatCategory newCategory) {
         if(reservation==null){
             System.out.println("The reservation object is null!");
@@ -170,19 +164,21 @@ public class Passenger {
             System.out.println("Your balance is Insufficient for this change!");
             return false;
         }
-        //1.调用modifty
+
         currentReservation.modifyCategory(newCategory);
-        //2.删减余额
+
         balance += gapPrice;
         System.out.println("You Flight: " + reservation.getFlight().getFlightNumber() + " seatCategory has now Change to " + newCategory.name());
         return true;
     }
 
-     /**
-     * Cancel an existing reservation for a flight.
+    /**
+     * Cancels an existing reservation for a flight.
+     * The method refunds the passenger's balance and loyalty points based on the reservation's refund fee.
      *
      * @param flight the flight to cancel the reservation for
-     * @return true if the cancellation is successful, false otherwise
+     * @param airlineCompany the airline company associated with the flight
+     * @return {@code true} if the reservation was successfully canceled, {@code false} otherwise
      */
     public boolean cancelReservation(Flight flight, AirlineCompany airlineCompany) {
         for (Reservation reservation : reservations) {
@@ -200,9 +196,9 @@ public class Passenger {
         }
         return false;
     }
-     /**
-     * Notify the passenger.
-     * Typically called when there is important information about a flight.
+    /**
+     * Notifies the passenger with important information about their flight or reservation.
+     * This method can be called when there is a need to inform the passenger of changes or updates.
      */
     public void Notified(){
         System.out.println("name = " + name +" has been Notified");
