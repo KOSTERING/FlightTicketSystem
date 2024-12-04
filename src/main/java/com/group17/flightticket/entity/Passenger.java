@@ -73,7 +73,7 @@ public class Passenger {
             System.out.println("Insufficient balance or Loyal points for this flight.");
             return null;
         }
-        Double needToPay = loyalScheme.redeemPoints(this.getName(), fee);
+        Double needToPay = loyalScheme.redeemPointsV2(this, fee);
 
         balance -= needToPay;
 
@@ -82,7 +82,7 @@ public class Passenger {
         reservations.add(reservation);
         flight.addPassenger(this);
 
-        System.out.println("Reservation successful. Points earned: " + pointsEarned + " current total points " + loyalScheme.getPoints(getName()));
+        System.out.println("Reservation successful.Passenger: " + getName() + " Points earned: " + pointsEarned + " current total points " + loyalScheme.getPoints(getName()));
         return reservation;
     }
 
