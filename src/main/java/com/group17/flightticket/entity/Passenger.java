@@ -68,7 +68,7 @@ public class Passenger {
 
 
         LoyalScheme loyalScheme = flight.getAirlineCompany().getLoyalScheme();
-        double points = loyalScheme.getPoints(this.getName());
+        double points = loyalScheme.getPointsV2(this);
         if (points + balance < fee) {
             System.out.println("Insufficient balance or Loyal points for this flight.");
             return null;
@@ -78,11 +78,11 @@ public class Passenger {
         balance -= needToPay;
 
         int pointsEarned = (int) (fee / 10); // 每10元获得1积分
-        loyalScheme.addPoints(this.getName(), pointsEarned);
+        loyalScheme.addPointsV2(this, pointsEarned);
         reservations.add(reservation);
         flight.addPassenger(this);
 
-        System.out.println("Reservation successful.Passenger: " + getName() + " Points earned: " + pointsEarned + " current total points " + loyalScheme.getPoints(getName()));
+        System.out.println("Reservation successful.Passenger: " + getName() + " Points earned: " + pointsEarned + " current total points " + loyalScheme.getPointsV2(this));
         return reservation;
     }
 
@@ -188,7 +188,7 @@ public class Passenger {
                 Double refundFee = reservation.getRefundFee();
                 balance += refundFee;
                 int pointsToRefund = (int) (refundFee / 10);
-                airlineCompany.getLoyalScheme().addPoints(this.getName(),pointsToRefund);
+                airlineCompany.getLoyalScheme().addPointsV2(this,pointsToRefund);
                 System.out.println(methodLogPrefix + "Passenger:"+ this.name +" Reservation for FlightNum:" +flight.getFlightNumber() +
                         "has been Canceled + pointsToRefund:" + pointsToRefund);
                 return true;
