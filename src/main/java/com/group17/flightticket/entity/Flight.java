@@ -169,16 +169,33 @@ public class Flight {
         origin.notify("Boarding completed for flight " + flightNumber);
     }
 
+    /**
+     * Calculates the hash code for the Flight object. The hash code is generated based on the flight number,
+     * origin, destination, departure time, and arrival time.
+     * <p>
+     * This method overrides {@link Object#hashCode()} to create a unique hash code for the flight based on its key attributes,
+     * which helps in efficient lookups and storage in collections like HashMap or HashSet.
+     *
+     * @return The hash code of the Flight object.
+     */
 
     @Override
     public int hashCode() {
         return Objects.hash(flightNumber,origin,destination,departureTime,arrivalTime);
     }
 
-
+    /**
+     * Returns a concise string representation of the Flight object. This method avoids recursive calls and provides
+     * a simple description containing the flight number and origin terminal.
+     * <p>
+     * This method overrides {@link Object#toString()} to provide a brief and informative string representation
+     * of the Flight object, useful for debugging and logging purposes.
+     *
+     * @return A string representation of the Flight, formatted as "Flight{Number='flightNumber', origin=origin}".
+     */
     @Override
     public String toString() {
-        // 简单返回乘客的基本信息，避免递归调用
+        // Return a simplified description, avoiding recursive calls
         return "Flight{Number='" + flightNumber + "', origin=" + origin + "}";
     }
 
