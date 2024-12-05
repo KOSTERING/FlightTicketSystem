@@ -20,27 +20,28 @@ import java.util.Objects;
 @Data
 public class Flight {
     private String flightNumber;
-    private String origin;
+    private Terminal  origin;
     private AirlineCompany airlineCompany;
-    private String destination;
+    private Terminal  destination;
     private LocalDateTime departureTime;
     private LocalDateTime arrivalTime;
     private int capacity;
     private double fee;
     private List<Passenger> passengerList;
+    private List<Passenger> boardedPassengers = new ArrayList<>(); // Passengers who have boarded
     private boolean bOpenForReservation = true;
 
     /**
      * Constructs a Flight object with specified details.
      *
      * @param flightNumber   The unique identifier for the flight.
-     * @param origin         The departure location of the flight.
-     * @param destination    The arrival location of the flight.
+     * @param origin         The departure terminal of the flight.
+     * @param destination    The arrival terminal of the flight.
      * @param departureTime  The scheduled departure time of the flight.
      * @param arrivalTime    The scheduled arrival time of the flight.
      * @param capacity       The total number of seats available on the flight.
      */
-    public Flight(String flightNumber, String origin,AirlineCompany airlineCompany, String destination, LocalDateTime departureTime, LocalDateTime arrivalTime, int capacity) {
+    public Flight(String flightNumber, Terminal origin, AirlineCompany airlineCompany, Terminal destination, LocalDateTime departureTime, LocalDateTime arrivalTime, int capacity) {
         this.flightNumber = flightNumber;
         this.origin = origin;
         this.airlineCompany = airlineCompany;
@@ -49,6 +50,10 @@ public class Flight {
         this.arrivalTime = arrivalTime;
         this.capacity = capacity;
         this.passengerList = new ArrayList<>();
+        // Add this flight to the originating terminal's departing flights
+        this.origin.addDepartingFlight(this);
+        // Add this flight to the destination terminal's arriving flights
+        this.destination.addArrivingFlight(this);
     }
 
     /**
@@ -123,6 +128,48 @@ public class Flight {
         }
         return RetNameList;
     }
+
+    /**
+     * Manages the boarding process for the flight, prioritizing passengers with quick boarding.
+     */
+    public void boardPassengers() {
+        if (boardedPassengers.size() >= capacity) {
+            System.out.println("All passengers have already boarded.");
+            return;
+        }
+
+        System.out.println("Boarding process starting for flight " + flightNumber);
+
+        // Notify terminal about boarding start
+        origin.notify("Boarding started for flight " + flightNumber);
+
+        // Priority boarding
+        for (Passenger passenger : passengerList) {
+            if (passenger.hasPriorityBoarding() && origin.hasPassenger(passenger) && boardedPassengers.size() < capacity) {
+                boardedPassengers.add(passenger);
+                System.out.println("Priority boarding: Passenger " + passenger.getName() + " has boarded.");
+            }
+        }
+
+        // Regular boarding
+        for (Passenger passenger : passengerList) {
+            if (!passenger.hasPriorityBoarding() && origin.hasPassenger(passenger) && boardedPassengers.size() < capacity) {
+                boardedPassengers.add(passenger);
+                System.out.println("Regular boarding: Passenger " + passenger.getName() + " has boarded.");
+            }
+        }
+
+        if (boardedPassengers.size() >= capacity) {
+            System.out.println("Flight " + flightNumber + " is fully boarded.");
+        }
+
+        passengerList.clear();
+
+        // Notify terminal about boarding completion
+        origin.notify("Boarding completed for flight " + flightNumber);
+    }
+
+
     @Override
     public int hashCode() {
         return Objects.hash(flightNumber,origin,destination,departureTime,arrivalTime);

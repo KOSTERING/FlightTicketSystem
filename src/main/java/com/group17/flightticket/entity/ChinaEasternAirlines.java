@@ -25,8 +25,8 @@ public class ChinaEasternAirlines extends AirlineCompany {
         System.out.println("Inventory Report for " + getCompanyName() + ":");
         for (Flight flight : getFlights()) {
             int availableSeats = flight.getRemainSeatCount();
-            System.out.println("Flight " + flight.getFlightNumber() + " from " + flight.getOrigin() + 
-                               " to " + flight.getDestination() + " has " + availableSeats + 
+            System.out.println("Flight " + flight.getFlightNumber() + " from " + flight.getOrigin().getLocation() +
+                               " to " + flight.getDestination().getLocation() + " has " + availableSeats +
                                " seats remaining.");
             if (availableSeats <= FLIGHT_CAPACITY_TRRESHOLD) {
                 System.out.println("  * Attention: This flight is nearing full capacity!");

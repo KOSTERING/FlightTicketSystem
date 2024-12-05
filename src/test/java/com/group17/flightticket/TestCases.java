@@ -1,17 +1,12 @@
 package com.group17.flightticket;
 
-import com.group17.flightticket.entity.ChinaEasternAirlines;
-import com.group17.flightticket.entity.Flight;
-import com.group17.flightticket.entity.Passenger;
-import com.group17.flightticket.entity.Reservation;
+import com.group17.flightticket.entity.*;
 import com.group17.flightticket.enums.SeatCategory;
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 
 import java.time.LocalDateTime;
-import java.util.Date;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -25,6 +20,11 @@ public class TestCases {
 
     Flight flightAbroad;
 
+    Terminal NewYorkTerminal;
+    Terminal ShanghaiTerminal;
+    Terminal ParisTerminal;
+    Terminal GuangzhouTerminal;
+
     Passenger passengerAlice;
     Passenger passengerBob;
     Passenger passengerHaru;
@@ -37,11 +37,16 @@ public class TestCases {
 
         easternAirlines = new ChinaEasternAirlines();
 
-        flightAbroad = new Flight("MU12322", "NewYork",easternAirlines, "Paris",
+        NewYorkTerminal=new Terminal("NewYork Terminal", "NewYork");
+        ShanghaiTerminal=new Terminal("Shanghai Terminal", "Shanghai");
+        ParisTerminal=new Terminal("Paris Terminal", "Paris");
+        GuangzhouTerminal=new Terminal("Guangzhou Terminal", "Guangzhou");
+
+        flightAbroad = new Flight("MU12322", NewYorkTerminal, easternAirlines, ParisTerminal,
                 LocalDateTime.of(2024, 11, 18, 12, 0),
                 LocalDateTime.of(2024, 11, 19, 0, 0),
                 10);
-        flightDomestic = new Flight("MU45613", "Shanghai",easternAirlines, "Guangzhou",
+        flightDomestic = new Flight("MU45613", ShanghaiTerminal, easternAirlines, GuangzhouTerminal,
                 LocalDateTime.of(2024, 11, 20, 10, 0),
                 LocalDateTime.of(2024, 11, 20, 13, 0),
                 3);
@@ -67,7 +72,7 @@ public class TestCases {
         assertTrue(passengerBob.makeReservation(flightDomestic, SeatCategory.FIRST_CLASS));*/
 
         // Mary makes a reservation with insurance
-        Reservation MaryReservation = passengerMary.makeReservationV4(flightDomestic,  SeatCategory.FIRST_CLASS,true,1000);
+        Reservation MaryReservation = passengerMary.makeReservationV4(flightDomestic,  SeatCategory.FIRST_CLASS,true,1000,false);
 
         //Capcaity Exceed book fail
         Reservation HaruReservation= passengerHaru.makeReservationV4(flightDomestic, SeatCategory.FIRST_CLASS);
@@ -125,6 +130,31 @@ public class TestCases {
     void TestNewLoyalScheme() {
         Reservation JackReservation = passengerJack.makeReservationV4(flightAbroad,  SeatCategory.BUSINESS);
         passengerJack.cancelReservationV2(flightAbroad,easternAirlines);
-
     }
+
+    @Test
+    void testBoardingPriority() {
+        passengerAlice.setCurrentTerminal(ShanghaiTerminal);
+        passengerBob.setCurrentTerminal(ShanghaiTerminal);
+        passengerAlice.enablePriorityBoarding();
+
+        flightDomestic.addPassenger(passengerAlice);
+        flightDomestic.addPassenger(passengerBob);
+        flightDomestic.boardPassengers();
+
+        List<Passenger> boarded = flightDomestic.getBoardedPassengers();
+        assertEquals(2, boarded.size());
+        assertEquals("Alice", boarded.get(0).getName()); // Alice priority bording
+    }
+
+    @Test
+    void testTerminalPassengerPresence() {
+        passengerAlice.setCurrentTerminal(NewYorkTerminal);
+        passengerBob.setCurrentTerminal(ParisTerminal);
+
+        assertTrue(NewYorkTerminal.hasPassenger(passengerAlice));
+        assertFalse(ParisTerminal.hasPassenger(passengerAlice));
+        assertTrue(ParisTerminal.hasPassenger(passengerBob));
+    }
+
 }

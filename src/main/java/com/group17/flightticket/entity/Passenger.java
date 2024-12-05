@@ -18,6 +18,10 @@ public class Passenger {
     private String name;
     /** The balance of the passenger's account */
     private double balance;
+    /** The Passenger's current terminal */
+    private Terminal currentTerminal;
+    /** The Priority boarding status */
+    private boolean priorityBoarding = false;
     /** The list of reservations made by the passenger */
     private List<Reservation> reservations =  new ArrayList<>();
     /** Prefix for logging messages */
@@ -45,7 +49,7 @@ public class Passenger {
      * @return The created reservation, or null if the reservation failed.
      */
     public Reservation makeReservationV4(Flight flight, SeatCategory category) {
-        return makeReservationV4(flight, category, false, 0.0); // Default: no insurance
+        return makeReservationV4(flight, category, false, 0.0, false); // Default: no insurance, no priority boarding
     }
 
 
@@ -62,7 +66,7 @@ public class Passenger {
      * @param coverageAmount amount of insurance covered
      * @return the created reservation, or {@code null} if the reservation could not be made
      */
-    public Reservation makeReservationV4(Flight flight, SeatCategory category, boolean purchaseInsurance, double coverageAmount) {
+    public Reservation makeReservationV4(Flight flight, SeatCategory category, boolean purchaseInsurance, double coverageAmount, boolean purchasePriorityBoarding) {
 
         if (!flight.isBOpenForReservation() || flight.getRemainSeatCount() < 1) {
             System.out.println("Flight is not open for reservation or fully booked.");
@@ -115,6 +119,17 @@ public class Passenger {
 
             System.out.println("Purchased insurance for reservation: " +
                     reservation.getFlight().getFlightNumber() + ", Coverage: $" + coverageAmount);
+        }
+
+        // Handle priority boarding purchase
+        if (purchasePriorityBoarding) {
+            if (balance < 50) {
+                System.out.println("Insufficient balance to purchase priority boarding.");
+                return null;
+            }
+            enablePriorityBoarding(); // Enable priority boarding for the passenger
+            balance -= 50; // Deduct priority boarding fee
+            System.out.println("Priority boarding purchased for passenger: " + name);
         }
 
         System.out.println("Reservation successful.Passenger: " + getName() + " Points earned: " + pointsEarned + " current total points " + loyalScheme.getPointsV2(this));
@@ -232,12 +247,51 @@ public class Passenger {
                     balance += insurance.getCoverageAmount() * 0.5; // Refund 50% of the insurance fee
                     insurancePolicies.remove(insurance); // Remove insurance from passenger's list
                 }
+                if(hasPriorityBoarding()){
+                    unablePriorityBoarding();
+                    balance+=50;
+                    System.out.println("PriorityBoarding for reservation " +
+                            reservation.getFlight().getFlightNumber() + " has been canceled.");
+                }
                 System.out.println(methodLogPrefix + "Passenger:"+ this.name +" Reservation for FlightNum:" +flight.getFlightNumber() +
                         "has been Canceled + pointsToRefund:" + pointsToRefund);
                 return true;
             }
         }
         return false;
+    }
+
+    /**
+     * Checks if the passenger is currently at the given terminal.
+     *
+     * @param terminal The terminal to check.
+     * @return {@code true} if the passenger is at the terminal, {@code false} otherwise.
+     */
+    public boolean isAtTerminal(Terminal terminal) {
+        return this.currentTerminal != null && this.currentTerminal.equals(terminal);
+    }
+
+    /**
+     * Checks if the passenger has priority boarding enabled.
+     *
+     * @return {@code true} if priority boarding is enabled, {@code false} otherwise.
+     */
+    public boolean hasPriorityBoarding() {
+        return priorityBoarding;
+    }
+
+    /**
+     * Enables priority boarding for the passenger.
+     */
+    public void enablePriorityBoarding() {
+        this.priorityBoarding = true;
+    }
+
+    /**
+     * Unables priority boarding for the passenger.
+     */
+    public void unablePriorityBoarding() {
+        this.priorityBoarding = false;
     }
 
     /**
