@@ -29,6 +29,7 @@ public class TestCases {
     Passenger passengerBob;
     Passenger passengerHaru;
     Passenger passengerJack;
+    Passenger passengerMary;
 
     //Some Preparation before test case running
     @BeforeEach
@@ -43,7 +44,7 @@ public class TestCases {
         flightDomestic = new Flight("MU45613", "Shanghai",easternAirlines, "Guangzhou",
                 LocalDateTime.of(2024, 11, 20, 10, 0),
                 LocalDateTime.of(2024, 11, 20, 13, 0),
-                2);
+                3);
 
         easternAirlines.addFlight(flightDomestic);
         easternAirlines.addFlight(flightAbroad);
@@ -52,19 +53,24 @@ public class TestCases {
         this.passengerBob = new Passenger("Bob",3000);
         this.passengerHaru = new Passenger("Haru",10000);
         this.passengerJack = new Passenger("Jack",300);
+        this.passengerMary = new Passenger("Mary",5000);
+
     }
 
     @Test
     void TestReservation() {
 
-        Reservation AliceReservation = passengerAlice.makeReservationV3(flightDomestic, SeatCategory.FIRST_CLASS);
-        Reservation BobReservation = passengerBob.makeReservationV3(flightDomestic,  SeatCategory.FIRST_CLASS);
+        Reservation AliceReservation = passengerAlice.makeReservationV4(flightDomestic, SeatCategory.FIRST_CLASS);
+        Reservation BobReservation = passengerBob.makeReservationV4(flightDomestic,  SeatCategory.FIRST_CLASS);
 
         /*assertTrue(passengerAlice.makeReservation(flightDomestic, SeatCategory.FIRST_CLASS));
         assertTrue(passengerBob.makeReservation(flightDomestic, SeatCategory.FIRST_CLASS));*/
 
+        // Mary makes a reservation with insurance
+        Reservation MaryReservation = passengerMary.makeReservationV4(flightDomestic,  SeatCategory.FIRST_CLASS,true,1000);
+
         //Capcaity Exceed book fail
-        Reservation HaruReservation= passengerHaru.makeReservationV3(flightDomestic, SeatCategory.FIRST_CLASS);
+        Reservation HaruReservation= passengerHaru.makeReservationV4(flightDomestic, SeatCategory.FIRST_CLASS);
 
         assertNull(HaruReservation);
 
@@ -74,17 +80,18 @@ public class TestCases {
 
         //Close Reservation For flightAbroad
         flightAbroad.setBOpenForReservation(false);
-        assertNull(passengerBob.makeReservationV3(flightAbroad,  SeatCategory.FIRST_CLASS));
+        assertNull(passengerBob.makeReservationV4(flightAbroad,  SeatCategory.FIRST_CLASS));
 
         //Cancel Reservation (Some Notification message will be print out if it Cancel Reservation Sucessfully)
-        assertTrue(passengerBob.cancelReservation(flightDomestic, easternAirlines));
+        assertTrue(passengerBob.cancelReservationV2(flightDomestic, easternAirlines));
+        assertTrue(passengerMary.cancelReservationV2(flightDomestic, easternAirlines));
     }
 
     @Test
     void TestCancelDelayAndNotify() {
 
-        Reservation JackReservation = passengerJack.makeReservationV3(flightAbroad,  SeatCategory.BUSINESS);
-        Reservation AliceReservation = passengerAlice.makeReservationV3(flightAbroad,  SeatCategory.BUSINESS);
+        Reservation JackReservation = passengerJack.makeReservationV4(flightAbroad,  SeatCategory.BUSINESS);
+        Reservation AliceReservation = passengerAlice.makeReservationV4(flightAbroad,  SeatCategory.BUSINESS);
 
         //Delay 2h For flightDomestic
         //Alice will be Notified
@@ -109,15 +116,15 @@ public class TestCases {
 
     @Test
     void TestNewMethod() {
-        Reservation JackReservation=passengerJack.makeReservationV3(flightAbroad,  SeatCategory.BUSINESS);
+        Reservation JackReservation=passengerJack.makeReservationV4(flightAbroad,  SeatCategory.BUSINESS);
         assertFalse(passengerJack.modifySeatCategoryV2(JackReservation,SeatCategory.FIRST_CLASS));
 
     }
 
     @Test
     void TestNewLoyalScheme() {
-        Reservation JackReservation = passengerJack.makeReservationV3(flightAbroad,  SeatCategory.BUSINESS);
-        passengerJack.cancelReservation(flightAbroad,easternAirlines);
+        Reservation JackReservation = passengerJack.makeReservationV4(flightAbroad,  SeatCategory.BUSINESS);
+        passengerJack.cancelReservationV2(flightAbroad,easternAirlines);
 
     }
 }

@@ -13,6 +13,7 @@ public class Reservation {
     private SeatCategory seatCategory;
     private double fee;
     private double refundRate = 0.8;
+    private Insurance insurance;
     /**
      * Constructs a Reservation with the given flight and seat category.
      * The fee is calculated based on the selected seat category.

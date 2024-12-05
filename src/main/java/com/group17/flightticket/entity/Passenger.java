@@ -1,10 +1,7 @@
 package com.group17.flightticket.entity;
 
 import com.group17.flightticket.enums.SeatCategory;
-import lombok.AllArgsConstructor;
 import lombok.Data;
-import lombok.EqualsAndHashCode;
-import lombok.ToString;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -25,6 +22,8 @@ public class Passenger {
     private List<Reservation> reservations =  new ArrayList<>();
     /** Prefix for logging messages */
     private static String methodLogPrefix = "LogPassenger_ ";
+    /** The list of insurance the passenger purchased */
+    private List<Insurance> insurancePolicies = new ArrayList<>();
 
 
     /**
@@ -37,6 +36,19 @@ public class Passenger {
         this.name = name;
         this.balance = balance;
     }
+
+    /**
+     * Overloaded makeReservation method with default parameters (no insurance).
+     *
+     * @param flight   The flight to reserve.
+     * @param category The seat category to reserve.
+     * @return The created reservation, or null if the reservation failed.
+     */
+    public Reservation makeReservationV4(Flight flight, SeatCategory category) {
+        return makeReservationV4(flight, category, false, 0.0); // Default: no insurance
+    }
+
+
     /**
      * Makes a reservation for a flight with a specified seat category.
      * This method checks if the flight is open for reservation and if there are available seats.
@@ -46,9 +58,11 @@ public class Passenger {
      *
      * @param flight   the flight to be reserved
      * @param category the seat category selected for the reservation
+     * @param purchaseInsurance whether purchase the insurance
+     * @param coverageAmount amount of insurance covered
      * @return the created reservation, or {@code null} if the reservation could not be made
      */
-    public Reservation makeReservationV3(Flight flight, SeatCategory category) {
+    public Reservation makeReservationV4(Flight flight, SeatCategory category, boolean purchaseInsurance, double coverageAmount) {
 
         if (!flight.isBOpenForReservation() || flight.getRemainSeatCount() < 1) {
             System.out.println("Flight is not open for reservation or fully booked.");
@@ -81,6 +95,27 @@ public class Passenger {
         loyalScheme.addPointsV2(this, pointsEarned);
         reservations.add(reservation);
         flight.addPassenger(this);
+
+        // Handle optional insurance purchase
+        if (purchaseInsurance) {
+            if (balance < coverageAmount) {
+                System.out.println("Insufficient balance to purchase insurance.");
+                return null;
+            }
+
+            Insurance insurance = new Insurance(
+                    "INS-" + reservation.getFlight().getFlightNumber() + "-" + name,
+                    coverageAmount,
+                    this,
+                    "Flight Accident Insurance"
+            );
+            reservation.setInsurance(insurance);
+            insurancePolicies.add(insurance); // Add insurance to passenger's list
+            balance -= coverageAmount;
+
+            System.out.println("Purchased insurance for reservation: " +
+                    reservation.getFlight().getFlightNumber() + ", Coverage: $" + coverageAmount);
+        }
 
         System.out.println("Reservation successful.Passenger: " + getName() + " Points earned: " + pointsEarned + " current total points " + loyalScheme.getPointsV2(this));
         return reservation;
@@ -180,7 +215,7 @@ public class Passenger {
      * @param airlineCompany the airline company associated with the flight
      * @return {@code true} if the reservation was successfully canceled, {@code false} otherwise
      */
-    public boolean cancelReservation(Flight flight, AirlineCompany airlineCompany) {
+    public boolean cancelReservationV2(Flight flight, AirlineCompany airlineCompany) {
         for (Reservation reservation : reservations) {
             if (reservation.getFlight().equals(flight)) {
                 reservations.remove(reservation);
@@ -189,6 +224,14 @@ public class Passenger {
                 balance += refundFee;
                 int pointsToRefund = (int) (refundFee / 10);
                 airlineCompany.getLoyalScheme().addPointsV2(this,pointsToRefund);
+                // Handle associated insurance cancellation
+                Insurance insurance = reservation.getInsurance();
+                if (insurance != null) {
+                    System.out.println("Insurance for reservation " +
+                            reservation.getFlight().getFlightNumber() + " has been canceled.");
+                    balance += insurance.getCoverageAmount() * 0.5; // Refund 50% of the insurance fee
+                    insurancePolicies.remove(insurance); // Remove insurance from passenger's list
+                }
                 System.out.println(methodLogPrefix + "Passenger:"+ this.name +" Reservation for FlightNum:" +flight.getFlightNumber() +
                         "has been Canceled + pointsToRefund:" + pointsToRefund);
                 return true;
@@ -196,6 +239,7 @@ public class Passenger {
         }
         return false;
     }
+
     /**
      * Notifies the passenger with important information about their flight or reservation.
      * This method can be called when there is a need to inform the passenger of changes or updates.
