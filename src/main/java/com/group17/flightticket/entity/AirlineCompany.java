@@ -39,15 +39,14 @@ public class AirlineCompany {
     /**
      * Cancels a flight from the airline company's list of managed flights based on the provided flight number.
      *
-     * @param flightNumber The unique identifier of the flight to be canceled.
+     * @param flight The instance of the flight to be canceled.
      * @return true if the flight was successfully found and canceled, false otherwise.
      */
-    public boolean cancelFlight(String flightNumber) {
+
+    public boolean cancelFlight(Flight flight) {
         boolean bRes =  false;
-        for (Flight flight : flights) {
-            if (flight.getFlightNumber().equals(flightNumber)) {
-                bRes = flights.remove(flight);
-            }
+        if (flight != null && flights.contains(flights)) {
+            bRes = flights.remove(flight);
         }
         return bRes;
     }
@@ -57,17 +56,18 @@ public class AirlineCompany {
      * This method searches for the flight by flight number within the list of managed flights.
      * Once found, it calls the Flight's delayFlight method to adjust the timings.
      *
-     * @param flightNumber The unique identifier of the flight to be delayed.
+     * @param flight The instance of the flight to be delayed.
      * @param newDepartureTime The new departure time for the flight.
      * @param newArrivalTime The new arrival time for the flight.
      */
-    public void delayFlight(String flightNumber, LocalDateTime newDepartureTime, LocalDateTime newArrivalTime) {
-        for (Flight flight : flights) {
-            if (flight.getFlightNumber().equals(flightNumber)) {
-                flight.delayFlight(newDepartureTime, newArrivalTime);
-            }
+
+    public void delayFlight(Flight flight, LocalDateTime newDepartureTime, LocalDateTime newArrivalTime) {
+        if (flight != null) {
+            flight.delayFlight(newDepartureTime,newArrivalTime);
         }
     }
+
+
 
     /**
      * Prints the inventory of all flights under the airline company.

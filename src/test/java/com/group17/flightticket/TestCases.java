@@ -99,10 +99,10 @@ public class TestCases {
         Reservation AliceReservation = passengerAlice.makeReservationV4(flightAbroad,  SeatCategory.BUSINESS);
 
         //Delay 2h For flightDomestic
-        //Alice will be Notified
-        LocalDateTime DelayFlightStartTime = flightDomestic.getDepartureTime().plusHours(2);
-        LocalDateTime DelayFlightArrivalTime = flightDomestic.getArrivalTime().plusHours(2);
-        easternAirlines.delayFlight(flightDomestic.getFlightNumber(),
+        //Alice and jack will be Notified
+        LocalDateTime DelayFlightStartTime = flightAbroad.getDepartureTime().plusHours(2);
+        LocalDateTime DelayFlightArrivalTime = flightAbroad.getArrivalTime().plusHours(2);
+        easternAirlines.delayFlight(flightAbroad,
                 DelayFlightStartTime,DelayFlightArrivalTime);
 
         //flightDomestic inventory
