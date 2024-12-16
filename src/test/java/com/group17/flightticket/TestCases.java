@@ -149,12 +149,22 @@ public class TestCases {
 
     @Test
     void testTerminalPassengerPresence() {
-        passengerAlice.setCurrentTerminal(NewYorkTerminal);
         passengerBob.setCurrentTerminal(ParisTerminal);
 
-        assertTrue(NewYorkTerminal.hasPassenger(passengerAlice));
-        assertFalse(ParisTerminal.hasPassenger(passengerAlice));
+        passengerHaru.setCurrentTerminal(ShanghaiTerminal);
+        Reservation HaruReservation = passengerHaru.makeReservationV4(flightDomestic, SeatCategory.FIRST_CLASS, true, 200, true);
+
+        passengerAlice.setCurrentTerminal(GuangzhouTerminal);
+        Reservation AliceReservation = passengerAlice.makeReservationV4(flightDomestic, SeatCategory.FIRST_CLASS, true, 200, true);
+        //Alice didn't abroad because she booked the wrong direction of flight(or in the opposite Terminal)
+        //flightDomestic was from Shanghai to guangzhou
+        flightDomestic.boardPassengers();
+
+        //Regular terminal functional testing
+        assertTrue(ShanghaiTerminal.hasPassenger(passengerHaru));
+        assertFalse(ShanghaiTerminal.hasPassenger(passengerAlice));
         assertTrue(ParisTerminal.hasPassenger(passengerBob));
+
     }
 
 }
