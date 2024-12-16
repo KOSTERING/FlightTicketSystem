@@ -45,7 +45,7 @@ public class AirlineCompany {
 
     public boolean cancelFlight(Flight flight) {
         boolean bRes =  false;
-        if (flight != null && flights.contains(flights)) {
+        if (flight != null && flights.contains(flight)) {
             bRes = flights.remove(flight);
         }
         return bRes;

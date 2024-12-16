@@ -107,8 +107,8 @@ public class TestCases {
 
         //flightDomestic inventory
 
-        //flight MU12322 remain 9 seat
-        //flight MU45613 remain 1 seat,and there will be short of capacity notification
+        //flight MU12322 remain 8 seat
+        //flight MU45613 remain 3 seat,and there will be short of capacity notification
         easternAirlines.inventory();
 
         //sufficient balance for alice to modify SeatCategory
@@ -116,6 +116,11 @@ public class TestCases {
 
         //Insufficient balance for jack to modify SeatCategory
         assertFalse(passengerJack.modifySeatCategory(flightAbroad.getFlightNumber(),SeatCategory.FIRST_CLASS));
+
+        passengerJack.cancelReservationV2(flightAbroad, easternAirlines);
+
+        //flight MU12322 remain 9 seat
+        easternAirlines.inventory();
 
     }
 
